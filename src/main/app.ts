@@ -1,7 +1,7 @@
-import { app } from 'electron';
+import { BrowserWindow, app } from 'electron';
 
 type StartAppOptions = {
-	createInitialWindow?: () => void | Promise<void>; // side effect function, doesn't return anything
+	createInitialWindow?: () => unknown | Promise<unknown>;
 };
 
 let isAppStarted = false;
@@ -24,7 +24,7 @@ export async function startApp(options: StartAppOptions = {}): Promise<void> {
 
     // when the app is reopened, open windows 
 	app.on('activate', async () => {
-		if (app.getAllWindows().length === 0) { // checks there are no open windows already
+		if (BrowserWindow.getAllWindows().length === 0) { // checks there are no open windows already
 			await createInitialWindow?.();
 		}
 	});
