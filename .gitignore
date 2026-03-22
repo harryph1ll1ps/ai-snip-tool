@@ -1,0 +1,8 @@
+node_modules
+.DS_Store
+dist
+dist-electron
+.svelte-kit
+build
+.env
+.env.*
