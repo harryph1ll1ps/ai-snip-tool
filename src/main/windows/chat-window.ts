@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 
 const CHAT_ROUTE = '/chat';
 
+// create the chat box window
 export async function createChatWindow(): Promise<BrowserWindow> {
 
     // create new electron window and store it
@@ -12,8 +13,9 @@ export async function createChatWindow(): Promise<BrowserWindow> {
 		minWidth: 360,
 		minHeight: 480,
 		show: false, // hide window initally
-		title: 'AI Snip Tool',
-		webPreferences: {
+		title: 'AI Chat',
+		webPreferences: { 
+            // before loading the UI, run the preload script
 			preload: fileURLToPath(new URL('../../preload/index.js', import.meta.url))
 		}
 	});
