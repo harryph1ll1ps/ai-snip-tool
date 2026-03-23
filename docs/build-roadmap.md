@@ -10,14 +10,15 @@ This roadmap is intentionally practical. It is designed to help you get to a wor
 
 The MVP has one core interaction:
 
-1. Register a global shortcut in Electron.
-2. Open a fullscreen transparent overlay.
-3. Let the user drag-select a region.
-4. Capture that region as an image.
-5. Open a small chat window near the selection.
-6. Start a chat session with the screenshot already attached as context.
-7. Send user prompts plus the screenshot-backed conversation state to OpenAI.
-8. Show the response and keep the session alive for follow-up questions.
+1. Launch the app quietly in the background.
+2. Register a global shortcut in Electron.
+3. Open a fullscreen transparent overlay.
+4. Let the user drag-select a region.
+5. Capture that region as an image.
+6. Open a small chat window near the selection.
+7. Start a chat session with the screenshot already attached as context.
+8. Send user prompts plus the screenshot-backed conversation state to OpenAI.
+9. Show the response and keep the session alive for follow-up questions.
 
 If a decision does not improve this flow, defer it.
 
@@ -194,7 +195,7 @@ You want the boundaries to be clean early, because this project touches native A
 
 Success check:
 
-- app launches
+- app launches quietly without opening chat by default
 - overlay route can open in a BrowserWindow
 - chat route can open in a separate BrowserWindow
 

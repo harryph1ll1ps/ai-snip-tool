@@ -1,7 +1,13 @@
 import { startApp } from './app';
-import { createChatWindow } from './windows/chat-window';
+import { registerGlobalShortcuts } from './shortcuts';
+import { createOverlayWindow } from './windows/overlay-window';
 
-// call startapp for its side effects
-void startApp({
-	createInitialWindow: createChatWindow
-});
+async function bootstrap(): Promise<void> {
+	await startApp();
+
+	registerGlobalShortcuts({
+		startSnipFlow: createOverlayWindow
+	});
+}
+
+void bootstrap();
