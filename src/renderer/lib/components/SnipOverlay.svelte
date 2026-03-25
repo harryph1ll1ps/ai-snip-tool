@@ -82,18 +82,22 @@
 		}
 
 		// Ignore tiny clicks so a selection represents an intentional drag.
-		if (selection.width >= MIN_SELECTION_SIZE && selection.height >= MIN_SELECTION_SIZE) {
-			lastSelection = {
-				x: selection.x,
-				y: selection.y,
-				width: selection.width,
-				height: selection.height
-			};
+		const isValidSelection =
+			selection.width >= MIN_SELECTION_SIZE && selection.height >= MIN_SELECTION_SIZE;
 
+		lastSelection = isValidSelection
+			? {
+					x: selection.x,
+					y: selection.y,
+					width: selection.width,
+					height: selection.height
+				}
+			: null;
+		clearSelection();
+
+		if (lastSelection) {
 			await storeSelection(lastSelection);
 		}
-
-		clearSelection();
 	}
 
 	async function handleEscape(event: KeyboardEvent): Promise<void> {
@@ -172,6 +176,7 @@
 		margin: 0;
 		overflow: hidden;
 		user-select: none;
+		cursor: crosshair;
 	}
 
 	.overlay-surface {
@@ -181,6 +186,11 @@
 		cursor: crosshair;
 		font-family: 'SF Pro Display', 'Helvetica Neue', sans-serif;
 		color: #f8fafc;
+	}
+
+	.overlay-surface,
+	.overlay-surface * {
+		cursor: crosshair;
 	}
 
 	.overlay-backdrop {

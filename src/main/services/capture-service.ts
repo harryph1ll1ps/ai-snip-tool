@@ -62,7 +62,10 @@ async function getPrimaryDisplaySource() {
 		thumbnailSize
 	});
 
-	const primarySource = sources.find((source) => source.display_id === String(display.id));
+	// `display_id` is not consistently populated across platforms, so keep a safe fallback for MVP.
+	const primarySource =
+		sources.find((source) => source.display_id === String(display.id)) ??
+		sources[0];
 
 	if (!primarySource) {
 		throw new Error('Could not find a desktop capture source for the primary display.');

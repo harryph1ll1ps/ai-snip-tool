@@ -6,6 +6,46 @@ Build a fast macOS desktop flow where the user presses `Cmd + Shift + A`, select
 
 This roadmap is intentionally practical. It is designed to help you get to a working MVP quickly without locking yourself into a messy architecture.
 
+## Current Status
+
+The project is now past the pure scaffold stage.
+
+What is already working:
+
+- app bootstrap and lifecycle wiring
+- global shortcut registration
+- overlay BrowserWindow creation
+- drag-to-select overlay UI in the renderer
+- Escape-to-cancel flow from renderer to main
+- typed preload bridge for the overlay actions
+- main-process IPC registration for screenshot actions
+- primary-display screenshot capture to a temp PNG file
+
+What is partially working:
+
+- the overlay can send selection bounds to main
+- main can capture the selected region and return screenshot metadata
+- the transition from capture to chat window is not built yet
+
+What is not built yet:
+
+- opening the chat window automatically after capture
+- screenshot preview passed into the chat UI
+- session storage and rehydration
+- OpenAI request flow
+- smart chat-window positioning near the selected region
+
+Known current assumptions:
+
+- capture is primary-display only for now
+- selected images are written to temp files
+- overlay selection is measured in renderer CSS pixels and translated to device pixels in main
+
+Known current polish issues:
+
+- the overlay cursor can fall back to the default macOS pointer after crossing into the menu bar
+- chat-window placement logic is not implemented yet
+
 ## Product Shape
 
 The MVP has one core interaction:
@@ -136,7 +176,7 @@ Recommended command surface:
 
 - `startSnipFlow()`
 - `cancelSnipFlow()`
-- `completeSelection(bounds)`
+- `storeSelection(bounds)`
 - `getActiveSession()`
 - `sendChatMessage({ sessionId, text })`
 - `closeSession(sessionId)`
@@ -221,6 +261,10 @@ Success check:
 - dragging returns correct coordinates
 - cancel works reliably
 
+Current status:
+
+- complete
+
 ### Step 3: Capture the selected region
 
 Once selection works, turn it into a real image.
@@ -242,6 +286,13 @@ Success check:
 - retina scaling does not break capture
 - basic multi-display behavior is understood, even if MVP support is limited
 
+Current status:
+
+- mostly complete for primary display only
+- temp-file output is implemented
+- retina scaling is handled using the display scale factor
+- multi-display support is still deferred
+
 ### Step 4: Open the floating chat window
 
 Build the lightweight response surface next.
@@ -262,6 +313,12 @@ Success check:
 - after capture, the chat window opens automatically
 - screenshot preview is visible
 - closing the chat ends the session cleanly
+
+Current next target:
+
+- after selection capture succeeds, create the chat window automatically
+- for the base case, place the chat window in a fixed location or one simple anchored position
+- defer edge-aware positioning until the first end-to-end version works
 
 ### Step 5: Add session state and message flow
 
@@ -369,6 +426,8 @@ Reason:
 - renderer is best for interaction
 - main is best for native and security-sensitive operations
 
+This is now the implemented direction.
+
 ### 5. Multi-display scope
 
 Recommendation: support the primary display first, then expand.
@@ -377,6 +436,8 @@ Reason:
 
 - multi-display and scale-factor mapping can become a large detour
 - you only need a realistic MVP path right now
+
+This is now the active implementation scope.
 
 ## Practical Risks
 
@@ -437,6 +498,12 @@ Selection produces a correct screenshot file.
 
 Screenshot opens in floating chat window with a live session.
 
+Current progress:
+
+- Milestone 1: effectively done
+- Milestone 2: in progress but close, with capture service implemented in main
+- Milestone 3: next major milestone
+
 ### Milestone 4
 
 Prompt + screenshot reaches OpenAI and renders a response.
@@ -471,6 +538,11 @@ If you want the fastest realistic path, build in this exact order:
 7. Session store and chat message model.
 8. OpenAI service integration.
 9. Loading, errors, and cleanup.
+
+Current position in that sequence:
+
+- steps 1 through 5 are substantially in place for the MVP path
+- the next practical slice is step 6: open the chat window automatically after capture
 
 That sequence keeps each step testable and avoids building on unproven assumptions.
 

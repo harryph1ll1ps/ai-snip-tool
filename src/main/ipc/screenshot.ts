@@ -10,14 +10,22 @@ function closeSenderWindow(senderWindow: BrowserWindow | null): void {
 
 export function registerScreenshotIpc(): void {
 	ipcMain.handle(IPC_CHANNELS.storeSelection, async (event, bounds: SelectionBounds) => {
-		const capturedScreenshot = await captureSelection(bounds);
-		const chatWindow = await createChatWindow();
+		try {
+			const capturedScreenshot = await captureSelection(bounds);
+			const overlayWindow = BrowserWindow.fromWebContents(event.sender);
 
-		chatWindow.setPosition(96, 96);
+			closeSenderWindow(overlayWindow);
 
-		closeSenderWindow(BrowserWindow.fromWebContents(event.sender));
+			await createChatWindow({
+				x: 96,
+				y: 96
+			});
 
-		return capturedScreenshot;
+			return capturedScreenshot;
+		} catch (error) {
+			console.error('Failed to store selection:', error);
+			throw error;
+		}
 	});
 
 	ipcMain.handle(IPC_CHANNELS.cancelSnipFlow, (event) => {

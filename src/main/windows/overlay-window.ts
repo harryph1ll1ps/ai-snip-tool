@@ -1,12 +1,17 @@
-import { BrowserWindow } from 'electron';
+import { BrowserWindow, screen } from 'electron';
 import { fileURLToPath } from 'node:url';
 
 const OVERLAY_ROUTE = '/overlay';
 
 // create the fullscreen transparent window for the snip tool
 export async function createOverlayWindow(): Promise<BrowserWindow> {
+	const display = screen.getPrimaryDisplay();
+
 	const overlayWindow = new BrowserWindow({
-		fullscreen: true,
+		x: display.bounds.x,
+		y: display.bounds.y,
+		width: display.bounds.width,
+		height: display.bounds.height,
 		show: false,
 		frame: false,
 		transparent: true,
@@ -15,6 +20,7 @@ export async function createOverlayWindow(): Promise<BrowserWindow> {
 		hasShadow: false,
 		skipTaskbar: true,
 		alwaysOnTop: true,
+		fullscreenable: false,
 		title: 'AI Snip Overlay',
 		webPreferences: {
 			preload: fileURLToPath(new URL('../../preload/index.js', import.meta.url))
