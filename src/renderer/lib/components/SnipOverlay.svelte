@@ -1,10 +1,6 @@
 <script lang="ts">
-	type SelectionBounds = {
-		x: number;
-		y: number;
-		width: number;
-		height: number;
-	};
+	import { cancelSnipFlow, completeSelection } from '$lib/api/electron';
+	import type { SelectionBounds } from '../../../main/types/ipc';
 
 	type SelectionState = SelectionBounds & {
 		active: boolean;
@@ -76,7 +72,7 @@
 	}
 
 	// Finalize the drag and keep it only if it is large enough to be meaningful.
-	function finishSelection(event: PointerEvent): void {
+	async function finishSelection(event: PointerEvent): Promise<void> {
 		if (!dragStart || !hostElement) {
 			return;
 		}
@@ -93,15 +89,18 @@
 				width: selection.width,
 				height: selection.height
 			};
+
+			await completeSelection(lastSelection);
 		}
 
 		clearSelection();
 	}
 
-	function handleEscape(event: KeyboardEvent): void {
+	async function handleEscape(event: KeyboardEvent): Promise<void> {
 		if (event.key === 'Escape') {
 			clearSelection();
 			lastSelection = null;
+			await cancelSnipFlow();
 		}
 	}
 
@@ -131,7 +130,7 @@
 			: 'Click and drag to select an area';
 
 	$: instructionLabel = lastSelection
-		? 'Selection captured locally. IPC wiring comes next.'
+		? 'Selection sent to the main process.'
 		: 'Press Escape to clear the current selection.';
 </script>
 
