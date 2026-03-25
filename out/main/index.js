@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, globalShortcut } from "electron";
 import { fileURLToPath } from "node:url";
 let isAppStarted = false;
 async function startApp(options = {}) {
@@ -20,33 +20,50 @@ async function startApp(options = {}) {
   await app.whenReady();
   await createInitialWindow?.();
 }
-const CHAT_ROUTE = "/chat";
-async function createChatWindow() {
-  const chatWindow = new BrowserWindow({
-    width: 420,
-    height: 640,
-    minWidth: 360,
-    minHeight: 480,
+const START_SNIP_ACCELERATOR = "CommandOrControl+Shift+A";
+function registerGlobalShortcuts(options) {
+  const startSnipFlow = options.startSnipFlow;
+  app.on("will-quit", () => {
+    globalShortcut.unregisterAll();
+  });
+  globalShortcut.register(START_SNIP_ACCELERATOR, () => {
+    void startSnipFlow();
+  });
+}
+const OVERLAY_ROUTE = "/overlay";
+async function createOverlayWindow() {
+  const overlayWindow = new BrowserWindow({
+    fullscreen: true,
     show: false,
-    // hide window initally
-    title: "AI Snip Tool",
+    frame: false,
+    transparent: true,
+    resizable: false,
+    movable: false,
+    hasShadow: false,
+    skipTaskbar: true,
+    alwaysOnTop: true,
+    title: "AI Snip Overlay",
     webPreferences: {
       preload: fileURLToPath(new URL("../../preload/index.js", import.meta.url))
     }
   });
-  chatWindow.once("ready-to-show", () => {
-    chatWindow.show();
+  overlayWindow.once("ready-to-show", () => {
+    overlayWindow.show();
   });
   const rendererUrl = process.env.ELECTRON_RENDERER_URL;
   if (rendererUrl) {
-    await chatWindow.loadURL(`${rendererUrl}${CHAT_ROUTE}`);
+    await overlayWindow.loadURL(`${rendererUrl}${OVERLAY_ROUTE}`);
   } else {
-    await chatWindow.loadFile(
-      fileURLToPath(new URL(`../../renderer${CHAT_ROUTE}/index.html`, import.meta.url))
+    await overlayWindow.loadFile(
+      fileURLToPath(new URL(`../../renderer${OVERLAY_ROUTE}/index.html`, import.meta.url))
     );
   }
-  return chatWindow;
+  return overlayWindow;
 }
-void startApp({
-  createInitialWindow: createChatWindow
-});
+async function bootstrap() {
+  await startApp();
+  registerGlobalShortcuts({
+    startSnipFlow: createOverlayWindow
+  });
+}
+void bootstrap();

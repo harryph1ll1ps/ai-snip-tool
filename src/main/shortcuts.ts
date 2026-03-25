@@ -6,12 +6,14 @@ type RegisterGlobalShortcutsOptions = {
 
 const START_SNIP_ACCELERATOR = 'CommandOrControl+Shift+A';
 
+
 export function registerGlobalShortcuts(
 	options: RegisterGlobalShortcutsOptions
 ): void {
+	// store the function that startSnipFlow will become
 	const startSnipFlow = options.startSnipFlow;
 
-	// clear shortcut when the app is about to quit
+	// clear shortcuts when the app is about to quit
 	app.on('will-quit', () => {
 		globalShortcut.unregisterAll();
 	});

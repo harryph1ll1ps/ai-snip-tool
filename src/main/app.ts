@@ -13,6 +13,7 @@ export async function startApp(options: StartAppOptions = {}): Promise<void> {
 
 	isAppStarted = true;
 
+	// if the key exists, store it. Else, store the variable as undefined
     const createInitialWindow = options.createInitialWindow;
 
     // windows/linix: quit app when windows are closed -- macOS: stays open

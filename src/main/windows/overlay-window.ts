@@ -28,7 +28,6 @@ export async function createOverlayWindow(): Promise<BrowserWindow> {
 
 	// load the frontend
 	const rendererUrl = process.env.ELECTRON_RENDERER_URL;
-
 	if (rendererUrl) {
 		await overlayWindow.loadURL(`${rendererUrl}${OVERLAY_ROUTE}`);
 	} else {
