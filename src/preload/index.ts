@@ -4,8 +4,8 @@ import { IPC_CHANNELS, type ElectronAPI, type SelectionBounds } from '../main/ty
 
 // preload is the only place the renderer should touch Electron IPC directly.
 const electronAPI: ElectronAPI = {
-	completeSelection(bounds: SelectionBounds) {
-		return ipcRenderer.invoke(IPC_CHANNELS.completeSelection, bounds);
+	storeSelection(bounds: SelectionBounds) {
+		return ipcRenderer.invoke(IPC_CHANNELS.storeSelection, bounds);
 	},
 	cancelSnipFlow() {
 		return ipcRenderer.invoke(IPC_CHANNELS.cancelSnipFlow);

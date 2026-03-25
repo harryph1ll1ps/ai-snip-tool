@@ -7,7 +7,7 @@ function closeSenderWindow(senderWindow: BrowserWindow | null): void {
 }
 
 export function registerScreenshotIpc(): void {
-	ipcMain.handle(IPC_CHANNELS.completeSelection, (event, bounds: SelectionBounds) => {
+	ipcMain.handle(IPC_CHANNELS.storeSelection, (event, bounds: SelectionBounds) => {
 		console.info('Overlay selection received:', bounds);
 
 		closeSenderWindow(BrowserWindow.fromWebContents(event.sender));

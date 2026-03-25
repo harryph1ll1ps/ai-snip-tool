@@ -8,12 +8,12 @@ export type SelectionBounds = {
 
 // Centralize channel names so preload, main, and renderer stay in sync.
 export const IPC_CHANNELS = {
-	completeSelection: 'screenshot:complete-selection',
+	storeSelection: 'screenshot:store-selection',
 	cancelSnipFlow: 'screenshot:cancel-snip-flow'
 } as const;
 
 // The preload layer will expose this shape to the renderer as window.electronAPI.
 export type ElectronAPI = {
-	completeSelection: (bounds: SelectionBounds) => Promise<void>;
+	storeSelection: (bounds: SelectionBounds) => Promise<void>;
 	cancelSnipFlow: () => Promise<void>;
 };

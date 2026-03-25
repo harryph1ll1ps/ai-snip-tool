@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { cancelSnipFlow, completeSelection } from '$lib/api/electron';
+	import { cancelSnipFlow, storeSelection } from '$lib/api/electron';
 	import type { SelectionBounds } from '../../../main/types/ipc';
 
 	type SelectionState = SelectionBounds & {
@@ -90,7 +90,7 @@
 				height: selection.height
 			};
 
-			await completeSelection(lastSelection);
+			await storeSelection(lastSelection);
 		}
 
 		clearSelection();

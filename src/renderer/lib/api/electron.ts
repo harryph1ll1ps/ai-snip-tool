@@ -8,8 +8,8 @@ function getElectronAPI(): ElectronAPI {
 	return window.electronAPI;
 }
 
-export function completeSelection(bounds: SelectionBounds): Promise<void> {
-	return getElectronAPI().completeSelection(bounds);
+export function storeSelection(bounds: SelectionBounds): Promise<void> {
+	return getElectronAPI().storeSelection(bounds);
 }
 
 export function cancelSnipFlow(): Promise<void> {
