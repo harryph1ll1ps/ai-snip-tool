@@ -1,0 +1,16 @@
+import { contextBridge, ipcRenderer } from 'electron';
+
+import { IPC_CHANNELS, type ElectronAPI, type SelectionBounds } from '../main/types/ipc';
+
+// preload is the only place the renderer should touch Electron IPC directly.
+const electronAPI: ElectronAPI = {
+	completeSelection(bounds: SelectionBounds) {
+		return ipcRenderer.invoke(IPC_CHANNELS.completeSelection, bounds);
+	},
+	cancelSnipFlow() {
+		return ipcRenderer.invoke(IPC_CHANNELS.cancelSnipFlow);
+	}
+};
+
+// make the API available to be called in the UI/rendering
+contextBridge.exposeInMainWorld('electronAPI', electronAPI);
