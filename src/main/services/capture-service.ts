@@ -34,9 +34,10 @@ export async function captureSelection(bounds: SelectionBounds): Promise<Capture
 
 	return {
 		path: outputPath,
+		previewDataUrl: screenshot.toDataURL(),
 		selectionBounds: bounds,
-		width: screenshot.getSize().width,
-		height: screenshot.getSize().height,
+		scaledWidth: screenshot.getSize().width,
+		scaledHeight: screenshot.getSize().height,
 		scaleFactor
 	};
 }

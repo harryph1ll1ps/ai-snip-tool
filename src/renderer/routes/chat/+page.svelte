@@ -1,22 +1,27 @@
 <script lang="ts">
-	type Message = {
-		id: string;
-		role: 'assistant' | 'user';
-		text: string;
-	};
+	import { onMount } from 'svelte';
 
-	const messages: Message[] = [
-		{
-			id: 'user-1',
-			role: 'user',
-			text: 'What do I say next?'
-		},
-		{
-			id: 'assistant-1',
-			role: 'assistant',
-			text: "Acknowledge the concern clearly, then answer with one concrete point about setup speed and how lightweight the integration is."
+	import { getActiveSession } from '$lib/api/electron';
+	import type { SnipSession } from '../../../main/types/ipc';
+
+	let session: SnipSession | null = null;
+	let sessionError = '';
+	let isLoadingSession = true;
+
+	onMount(async () => {
+		try {
+			session = await getActiveSession();
+		} catch (error) {
+			sessionError = error instanceof Error ? error.message : 'Could not load the active session.';
+		} finally {
+			isLoadingSession = false;
 		}
-	];
+	});
+
+	$: screenshot = session?.screenshot ?? null;
+	$: assistantMessage = screenshot
+		? `Screenshot ready. I have the selected region from your screen and can use it as the basis for the conversation.`
+		: 'Capture a screenshot to start a new chat session.';
 </script>
 
 <svelte:head>
@@ -26,11 +31,33 @@
 <div class="chat-stage">
 	<section class="glass-shell" aria-label="Screenshot assistant">
 		<section class="messages-panel" aria-label="Conversation">
-			{#each messages as message}
-				<article class:assistant={message.role === 'assistant'} class:user={message.role === 'user'}>
-					<p class="message-text">{message.text}</p>
+			{#if isLoadingSession}
+				<article class="assistant">
+					<p class="message-text">Loading the latest screenshot session...</p>
 				</article>
-			{/each}
+			{:else if sessionError}
+				<article class="assistant error">
+					<p class="message-text">{sessionError}</p>
+				</article>
+			{:else if session && screenshot}
+				<article class="user">
+					<p class="message-text">Screenshot captured</p>
+				</article>
+
+				<article class="assistant">
+					<p class="message-text">{assistantMessage}</p>
+				</article>
+
+				<section class="screenshot-card" aria-label="Captured screenshot preview">
+					<div class="screenshot-frame">
+						<img src={screenshot.previewDataUrl} alt="Captured screenshot preview" />
+					</div>
+				</section>
+			{:else}
+				<article class="assistant">
+					<p class="message-text">No active screenshot session yet. Create a snip to populate this window.</p>
+				</article>
+			{/if}
 		</section>
 
 		<form class="assist-bar">
@@ -128,6 +155,10 @@
 		text-wrap: balance;
 	}
 
+	article.error .message-text {
+		color: #991b1b;
+	}
+
 	article.user .message-text {
 		padding: 14px 22px;
 		border: 1px solid rgba(17, 17, 17, 0.14);
@@ -136,6 +167,30 @@
 		box-shadow:
 			inset 0 1px 0 rgba(255, 255, 255, 0.12),
 			0 12px 28px rgba(0, 0, 0, 0.14);
+	}
+
+	.screenshot-card {
+		padding: 14px;
+		border-radius: 24px;
+		background: rgba(255, 255, 255, 0.42);
+		border: 1px solid rgba(255, 255, 255, 0.62);
+		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.44);
+		backdrop-filter: blur(18px);
+		-webkit-backdrop-filter: blur(18px);
+	}
+
+	.screenshot-frame {
+		overflow: hidden;
+		border-radius: 18px;
+		background: rgba(17, 17, 17, 0.06);
+		border: 1px solid rgba(17, 17, 17, 0.08);
+	}
+
+	.screenshot-frame img {
+		display: block;
+		width: 100%;
+		max-height: 180px;
+		object-fit: cover;
 	}
 
 	.assist-bar {
