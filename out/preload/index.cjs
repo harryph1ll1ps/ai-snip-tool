@@ -2,7 +2,8 @@
 const electron = require("electron");
 const IPC_CHANNELS = {
   storeSelection: "screenshot:store-selection",
-  cancelSnipFlow: "screenshot:cancel-snip-flow"
+  cancelSnipFlow: "screenshot:cancel-snip-flow",
+  getActiveSession: "session:get-active"
 };
 const electronAPI = {
   storeSelection(bounds) {
@@ -10,6 +11,9 @@ const electronAPI = {
   },
   cancelSnipFlow() {
     return electron.ipcRenderer.invoke(IPC_CHANNELS.cancelSnipFlow);
+  },
+  getActiveSession() {
+    return electron.ipcRenderer.invoke(IPC_CHANNELS.getActiveSession);
   }
 };
 electron.contextBridge.exposeInMainWorld("electronAPI", electronAPI);

@@ -1,8 +1,8 @@
-import { app, screen, desktopCapturer, BrowserWindow, ipcMain, globalShortcut } from "electron";
+import { app, ipcMain, screen, desktopCapturer, BrowserWindow, globalShortcut } from "electron";
+import { randomUUID } from "node:crypto";
 import { writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
 let isAppStarted = false;
 async function startApp() {
@@ -16,6 +16,29 @@ async function startApp() {
     }
   });
   await app.whenReady();
+}
+let activeSession = null;
+function createSession(screenshot) {
+  const session = {
+    id: randomUUID(),
+    createdAt: (/* @__PURE__ */ new Date()).toISOString(),
+    screenshot
+  };
+  activeSession = session;
+  return session;
+}
+function getActiveSession() {
+  return activeSession;
+}
+const IPC_CHANNELS = {
+  storeSelection: "screenshot:store-selection",
+  cancelSnipFlow: "screenshot:cancel-snip-flow",
+  getActiveSession: "session:get-active"
+};
+function registerSessionIpc() {
+  ipcMain.handle(IPC_CHANNELS.getActiveSession, () => {
+    return getActiveSession();
+  });
 }
 async function captureSelection(bounds) {
   const display = screen.getPrimaryDisplay();
@@ -35,9 +58,10 @@ async function captureSelection(bounds) {
   await writeFile(outputPath, screenshot.toPNG());
   return {
     path: outputPath,
+    previewDataUrl: screenshot.toDataURL(),
     selectionBounds: bounds,
-    width: screenshot.getSize().width,
-    height: screenshot.getSize().height,
+    scaledWidth: screenshot.getSize().width,
+    scaledHeight: screenshot.getSize().height,
     scaleFactor
   };
 }
@@ -57,10 +81,6 @@ async function getPrimaryDisplaySource() {
   }
   return primarySource;
 }
-const IPC_CHANNELS = {
-  storeSelection: "screenshot:store-selection",
-  cancelSnipFlow: "screenshot:cancel-snip-flow"
-};
 const CHAT_ROUTE = "/chat";
 async function createChatWindow(options = {}) {
   const chatWindow = new BrowserWindow({
@@ -99,6 +119,7 @@ function registerScreenshotIpc() {
     try {
       const capturedScreenshot = await captureSelection(bounds);
       const overlayWindow = BrowserWindow.fromWebContents(event.sender);
+      createSession(capturedScreenshot);
       closeSenderWindow(overlayWindow);
       await createChatWindow({
         x: 96,
@@ -118,6 +139,7 @@ function registerScreenshotIpc() {
 }
 function registerIpcHandlers() {
   registerScreenshotIpc();
+  registerSessionIpc();
 }
 const START_SNIP_ACCELERATOR = "CommandOrControl+Shift+A";
 function registerGlobalShortcuts(options) {
