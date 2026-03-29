@@ -102,9 +102,11 @@
 
 	async function handleEscape(event: KeyboardEvent): Promise<void> {
 		if (event.key === 'Escape') {
+			console.log('Escape pressed, cancelling snip flow');
 			clearSelection();
 			lastSelection = null;
 			await cancelSnipFlow();
+			console.log('cancelSnipFlow resolved');
 		}
 	}
 

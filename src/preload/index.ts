@@ -8,6 +8,7 @@ const electronAPI: ElectronAPI = {
 		return ipcRenderer.invoke(IPC_CHANNELS.storeSelection, bounds);
 	},
 	cancelSnipFlow() {
+		console.log('preload cancelSnipFlow invoked');
 		return ipcRenderer.invoke(IPC_CHANNELS.cancelSnipFlow);
 	}
 };

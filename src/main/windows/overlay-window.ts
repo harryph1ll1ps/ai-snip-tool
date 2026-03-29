@@ -23,8 +23,12 @@ export async function createOverlayWindow(): Promise<BrowserWindow> {
 		fullscreenable: false,
 		title: 'AI Snip Overlay',
 		webPreferences: {
-			preload: fileURLToPath(new URL('../../preload/index.js', import.meta.url))
+			preload: fileURLToPath(new URL('../preload/index.cjs', import.meta.url))
 		}
+	});
+
+	overlayWindow.webContents.on('console-message', (_event, level, message) => {
+		console.log(`[overlay:${level}] ${message}`);
 	});
 
 	// show overlay window once ready
@@ -38,7 +42,7 @@ export async function createOverlayWindow(): Promise<BrowserWindow> {
 		await overlayWindow.loadURL(`${rendererUrl}${OVERLAY_ROUTE}`);
 	} else {
 		await overlayWindow.loadFile(
-			fileURLToPath(new URL(`../../renderer${OVERLAY_ROUTE}/index.html`, import.meta.url))
+			fileURLToPath(new URL(`../renderer${OVERLAY_ROUTE}/index.html`, import.meta.url))
 		);
 	}
 

@@ -8,7 +8,18 @@ export default defineConfig({
     plugins: [externalizeDepsPlugin()]
   },
   preload: {
-    plugins: [externalizeDepsPlugin()]
+    plugins: [externalizeDepsPlugin()],
+    build: {
+      lib: {
+        formats: ['cjs']
+      },
+      rollupOptions: {
+        output: {
+          entryFileNames: '[name].cjs',
+          chunkFileNames: '[name]-[hash].cjs'
+        }
+      }
+    }
   },
   renderer: mergeConfig(rendererConfig, {})
 });

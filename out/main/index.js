@@ -1,28 +1,21 @@
-import { app, BrowserWindow, screen, desktopCapturer, ipcMain, globalShortcut } from "electron";
+import { app, screen, desktopCapturer, BrowserWindow, ipcMain, globalShortcut } from "electron";
 import { writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
 let isAppStarted = false;
-async function startApp(options = {}) {
+async function startApp() {
   if (isAppStarted) {
     return;
   }
   isAppStarted = true;
-  const createInitialWindow = options.createInitialWindow;
   app.on("window-all-closed", () => {
     if (process.platform !== "darwin") {
       app.quit();
     }
   });
-  app.on("activate", async () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      await createInitialWindow?.();
-    }
-  });
   await app.whenReady();
-  await createInitialWindow?.();
 }
 async function captureSelection(bounds) {
   const display = screen.getPrimaryDisplay();
@@ -80,7 +73,7 @@ async function createChatWindow(options = {}) {
     title: "AI Chat",
     webPreferences: {
       // before loading the UI, run the preload script
-      preload: fileURLToPath(new URL("../../preload/index.js", import.meta.url))
+      preload: fileURLToPath(new URL("../preload/index.cjs", import.meta.url))
     }
   });
   const rendererUrl = process.env.ELECTRON_RENDERER_URL;
@@ -88,7 +81,7 @@ async function createChatWindow(options = {}) {
     await chatWindow.loadURL(`${rendererUrl}${CHAT_ROUTE}`);
   } else {
     await chatWindow.loadFile(
-      fileURLToPath(new URL(`../../renderer${CHAT_ROUTE}/index.html`, import.meta.url))
+      fileURLToPath(new URL(`../renderer${CHAT_ROUTE}/index.html`, import.meta.url))
     );
   }
   if (typeof options.x === "number" && typeof options.y === "number") {
@@ -108,6 +101,7 @@ function registerScreenshotIpc() {
       const overlayWindow = BrowserWindow.fromWebContents(event.sender);
       closeSenderWindow(overlayWindow);
       await createChatWindow({
+        //THIS ISNT OPENING
         x: 96,
         y: 96
       });
@@ -119,7 +113,10 @@ function registerScreenshotIpc() {
   });
   ipcMain.handle(IPC_CHANNELS.cancelSnipFlow, (event) => {
     console.info("Overlay selection cancelled");
-    closeSenderWindow(BrowserWindow.fromWebContents(event.sender));
+    console.log("main received cancelSnipFlow");
+    const senderWindow = BrowserWindow.fromWebContents(event.sender);
+    console.log("senderWindow exists?", Boolean(senderWindow));
+    closeSenderWindow(senderWindow);
   });
 }
 function registerIpcHandlers() {
@@ -154,8 +151,11 @@ async function createOverlayWindow() {
     fullscreenable: false,
     title: "AI Snip Overlay",
     webPreferences: {
-      preload: fileURLToPath(new URL("../../preload/index.js", import.meta.url))
+      preload: fileURLToPath(new URL("../preload/index.cjs", import.meta.url))
     }
+  });
+  overlayWindow.webContents.on("console-message", (_event, level, message) => {
+    console.log(`[overlay:${level}] ${message}`);
   });
   overlayWindow.once("ready-to-show", () => {
     overlayWindow.show();
@@ -165,7 +165,7 @@ async function createOverlayWindow() {
     await overlayWindow.loadURL(`${rendererUrl}${OVERLAY_ROUTE}`);
   } else {
     await overlayWindow.loadFile(
-      fileURLToPath(new URL(`../../renderer${OVERLAY_ROUTE}/index.html`, import.meta.url))
+      fileURLToPath(new URL(`../renderer${OVERLAY_ROUTE}/index.html`, import.meta.url))
     );
   }
   return overlayWindow;

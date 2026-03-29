@@ -21,7 +21,7 @@ export async function createChatWindow(options: CreateChatWindowOptions = {}): P
 		title: 'AI Chat',
 		webPreferences: {
 			// before loading the UI, run the preload script
-			preload: fileURLToPath(new URL('../../preload/index.js', import.meta.url))
+			preload: fileURLToPath(new URL('../preload/index.cjs', import.meta.url))
 		}
 	});
 
@@ -34,7 +34,7 @@ export async function createChatWindow(options: CreateChatWindowOptions = {}): P
 	} else {
 		// load the front end from compiled file
 		await chatWindow.loadFile(
-			fileURLToPath(new URL(`../../renderer${CHAT_ROUTE}/index.html`, import.meta.url))
+			fileURLToPath(new URL(`../renderer${CHAT_ROUTE}/index.html`, import.meta.url))
 		);
 	}
 
