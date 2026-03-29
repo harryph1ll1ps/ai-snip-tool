@@ -13,9 +13,9 @@ export function registerScreenshotIpc(): void {
 			const capturedScreenshot = await captureSelection(bounds);
 			const overlayWindow = BrowserWindow.fromWebContents(event.sender);
 
-			closeSenderWindow(overlayWindow); // THIS ISNT CLOSING WHEN I LET GO OF THE DRAG
+			closeSenderWindow(overlayWindow);
 
-			await createChatWindow({ //THIS ISNT OPENING
+			await createChatWindow({
 				x: 96,
 				y: 96
 			});
@@ -29,10 +29,8 @@ export function registerScreenshotIpc(): void {
 
 	ipcMain.handle(IPC_CHANNELS.cancelSnipFlow, (event) => {
 		console.info('Overlay selection cancelled');
-		console.log('main received cancelSnipFlow');
 
 		const senderWindow = BrowserWindow.fromWebContents(event.sender);
-		console.log('senderWindow exists?', Boolean(senderWindow));
 		closeSenderWindow(senderWindow);
 	});
 }

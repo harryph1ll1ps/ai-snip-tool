@@ -101,7 +101,6 @@ function registerScreenshotIpc() {
       const overlayWindow = BrowserWindow.fromWebContents(event.sender);
       closeSenderWindow(overlayWindow);
       await createChatWindow({
-        //THIS ISNT OPENING
         x: 96,
         y: 96
       });
@@ -113,9 +112,7 @@ function registerScreenshotIpc() {
   });
   ipcMain.handle(IPC_CHANNELS.cancelSnipFlow, (event) => {
     console.info("Overlay selection cancelled");
-    console.log("main received cancelSnipFlow");
     const senderWindow = BrowserWindow.fromWebContents(event.sender);
-    console.log("senderWindow exists?", Boolean(senderWindow));
     closeSenderWindow(senderWindow);
   });
 }
@@ -153,9 +150,6 @@ async function createOverlayWindow() {
     webPreferences: {
       preload: fileURLToPath(new URL("../preload/index.cjs", import.meta.url))
     }
-  });
-  overlayWindow.webContents.on("console-message", (_event, level, message) => {
-    console.log(`[overlay:${level}] ${message}`);
   });
   overlayWindow.once("ready-to-show", () => {
     overlayWindow.show();

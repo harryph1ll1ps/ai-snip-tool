@@ -10,11 +10,9 @@ export default defineConfig({
   preload: {
     plugins: [externalizeDepsPlugin()],
     build: {
-      lib: {
-        formats: ['cjs']
-      },
       rollupOptions: {
         output: {
+          format: 'cjs',
           entryFileNames: '[name].cjs',
           chunkFileNames: '[name]-[hash].cjs'
         }

@@ -9,9 +9,9 @@ export async function startApp(): Promise<void> {
 
 	isAppStarted = true;
 
-	// windows/linix: quit app when windows are closed -- macOS: stays open
+	// Quit on non-macOS platforms when the last window closes. On macOS the app stays resident.
 	app.on('window-all-closed', () => {
-		if (process.platform !== 'darwin') {  // darwin == macOS
+		if (process.platform !== 'darwin') {
 			app.quit();
 		}
 	});

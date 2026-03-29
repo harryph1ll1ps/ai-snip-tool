@@ -1,4 +1,4 @@
-import type { ElectronAPI, SelectionBounds } from '../../../main/types/ipc';
+import type { CapturedScreenshot, ElectronAPI, SelectionBounds } from '../../../main/types/ipc';
 
 function getElectronAPI(): ElectronAPI {
 	if (!window.electronAPI) {
@@ -8,7 +8,7 @@ function getElectronAPI(): ElectronAPI {
 	return window.electronAPI;
 }
 
-export function storeSelection(bounds: SelectionBounds): Promise<void> {
+export function storeSelection(bounds: SelectionBounds): Promise<CapturedScreenshot> {
 	return getElectronAPI().storeSelection(bounds);
 }
 

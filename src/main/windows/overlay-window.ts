@@ -27,10 +27,6 @@ export async function createOverlayWindow(): Promise<BrowserWindow> {
 		}
 	});
 
-	overlayWindow.webContents.on('console-message', (_event, level, message) => {
-		console.log(`[overlay:${level}] ${message}`);
-	});
-
 	// show overlay window once ready
 	overlayWindow.once('ready-to-show', () => {
 		overlayWindow.show();

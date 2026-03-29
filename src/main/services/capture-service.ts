@@ -4,15 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 
-import type { SelectionBounds } from '../types/ipc';
-
-export type CapturedScreenshot = {
-	path: string;
-	selectionBounds: SelectionBounds;
-	width: number;
-	height: number;
-	scaleFactor: number;
-};
+import type { CapturedScreenshot, SelectionBounds } from '../types/ipc';
 
 // MVP assumption: the overlay selection is taken from the primary display only.
 export async function captureSelection(bounds: SelectionBounds): Promise<CapturedScreenshot> {

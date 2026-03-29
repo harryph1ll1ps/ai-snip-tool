@@ -2,49 +2,49 @@
 
 Electron + SvelteKit desktop app for a fast screenshot-to-chat workflow on macOS.
 
-## Project objective
+## Current MVP
 
-The target interaction is:
+The app currently supports this end-to-end flow:
 
-1. User presses `Cmd + Shift + A`
-2. A fullscreen snipping overlay opens
-3. User selects a screen region
-4. The app captures that region
-5. A small floating AI chat opens with the screenshot already attached as context
-6. The user can ask follow-up questions about the same screenshot
+1. Launch the app in the background.
+2. Press `Cmd + Shift + A`.
+3. Open a fullscreen snipping overlay.
+4. Drag to select part of the screen.
+5. Capture that region to a temp PNG.
+6. Close the overlay and open a floating chat window.
 
-This repo is currently in the foundation stage. The focus right now is app boot, process boundaries, typed IPC contracts, and renderer wiring.
+The chat window UI is currently a visual shell only. The screenshot metadata is captured in main, but it is not yet displayed in the renderer or sent to an AI backend.
 
-## Tech stack
-
-- Electron for desktop lifecycle, windows, shortcuts, and native integrations
-- SvelteKit for the renderer UI
-- TypeScript across main, preload, and renderer
-- `electron-vite` for development/build tooling
-
-## Current structure
+## Architecture
 
 ```text
 src/
-  main/      Electron main process code
-  preload/   Safe bridge between Electron and the renderer
-  renderer/  SvelteKit UI
-docs/        Planning and architecture notes
+  main/      Electron main process: lifecycle, shortcuts, windows, IPC, capture
+  preload/   Safe typed bridge from renderer to main
+  renderer/  Svelte UI for overlay and chat
+docs/        Notes on roadmap and architecture
 ```
+
+Key runtime flow:
+
+- [src/main/index.ts](/Users/harryphillips/PROJECTS/ai-snip-tool/src/main/index.ts) boots the app, IPC handlers, and global shortcuts.
+- [src/main/shortcuts.ts](/Users/harryphillips/PROJECTS/ai-snip-tool/src/main/shortcuts.ts) registers `Cmd + Shift + A`.
+- [src/main/windows/overlay-window.ts](/Users/harryphillips/PROJECTS/ai-snip-tool/src/main/windows/overlay-window.ts) opens the snipping overlay.
+- [src/renderer/lib/components/SnipOverlay.svelte](/Users/harryphillips/PROJECTS/ai-snip-tool/src/renderer/lib/components/SnipOverlay.svelte) handles drag selection and Escape-to-cancel.
+- [src/preload/index.ts](/Users/harryphillips/PROJECTS/ai-snip-tool/src/preload/index.ts) exposes the typed Electron bridge.
+- [src/main/ipc/screenshot.ts](/Users/harryphillips/PROJECTS/ai-snip-tool/src/main/ipc/screenshot.ts) handles selection storage/cancel actions.
+- [src/main/services/capture-service.ts](/Users/harryphillips/PROJECTS/ai-snip-tool/src/main/services/capture-service.ts) captures the selected region.
+- [src/main/windows/chat-window.ts](/Users/harryphillips/PROJECTS/ai-snip-tool/src/main/windows/chat-window.ts) opens the floating chat window.
 
 ## Scripts
 
-- `npm run dev`: start Electron in development with renderer HMR and main/preload watch mode
-- `npm run build`: generate a production build
-- `npm run preview`: run the built app
+- `npm run dev`: run Electron with watched main/preload builds and renderer HMR
+- `npm run build`: build the app
+- `npm run preview`: preview the built app
 - `npm run check`: run Svelte + TypeScript checks
 
 ## Notes
 
-- The renderer is configured as a SvelteKit app rooted in `src/renderer`.
-- The Electron app entrypoint is `src/main/index.ts`.
-- The current roadmap lives in `docs/build-roadmap.md`.
-
-## Next implementation step
-
-The next concrete task is to wire the first real BrowserWindow from `src/main/app.ts` through `src/main/windows/chat-window.ts` so the app boots into a visible renderer route.
+- The preload bundle is intentionally built as CommonJS so Electron can load it reliably.
+- The renderer is rooted in `src/renderer` and uses SvelteKit static output for production routes.
+- Current roadmap notes live in [docs/build-roadmap.md](/Users/harryphillips/PROJECTS/ai-snip-tool/docs/build-roadmap.md).
