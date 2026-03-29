@@ -1,4 +1,9 @@
-import type { CapturedScreenshot, ElectronAPI, SelectionBounds } from '../../../main/types/ipc';
+import type {
+	CapturedScreenshot,
+	ElectronAPI,
+	SelectionBounds,
+	SnipSession
+} from '../../../main/types/ipc';
 
 function getElectronAPI(): ElectronAPI {
 	if (!window.electronAPI) {
@@ -14,4 +19,8 @@ export function storeSelection(bounds: SelectionBounds): Promise<CapturedScreens
 
 export function cancelSnipFlow(): Promise<void> {
 	return getElectronAPI().cancelSnipFlow();
+}
+
+export function getActiveSession(): Promise<SnipSession | null> {
+	return getElectronAPI().getActiveSession();
 }

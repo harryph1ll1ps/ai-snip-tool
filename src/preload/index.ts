@@ -9,6 +9,9 @@ const electronAPI: ElectronAPI = {
 	},
 	cancelSnipFlow() {
 		return ipcRenderer.invoke(IPC_CHANNELS.cancelSnipFlow);
+	},
+	getActiveSession() {
+		return ipcRenderer.invoke(IPC_CHANNELS.getActiveSession);
 	}
 };
 

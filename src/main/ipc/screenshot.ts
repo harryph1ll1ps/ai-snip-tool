@@ -1,5 +1,6 @@
 import { BrowserWindow, ipcMain } from 'electron';
 import { captureSelection } from '../services/capture-service';
+import { createSession } from '../services/session-store';
 import { IPC_CHANNELS, type SelectionBounds } from '../types/ipc';
 import { createChatWindow } from '../windows/chat-window';
 
@@ -12,6 +13,7 @@ export function registerScreenshotIpc(): void {
 		try {
 			const capturedScreenshot = await captureSelection(bounds);
 			const overlayWindow = BrowserWindow.fromWebContents(event.sender);
+			createSession(capturedScreenshot);
 
 			closeSenderWindow(overlayWindow);
 
